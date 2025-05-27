@@ -10,7 +10,9 @@ export function registerAiHandlers(bot: Telegraf<Context>) {
   bot.action("GEN_IMAGE", async (ctx: Context) => {
     const user = await ensureUser(ctx);
     try {
-      const engine = await selectEngine("image", userIsPaid(user));
+      const tgId = ctx.from!.id;
+      const isPaid = await userIsPaid(tgId);
+      const engine = await selectEngine("image", isPaid);
       const cost = chargeForGeneration(user, engine);
       await user.save();
 
@@ -33,7 +35,9 @@ export function registerAiHandlers(bot: Telegraf<Context>) {
   bot.action("GEN_TEXT", async (ctx: Context) => {
     const user = await ensureUser(ctx);
     try {
-      const engine = await selectEngine("image", userIsPaid(user));
+      const tgId = ctx.from!.id;
+      const isPaid = await userIsPaid(tgId);
+      const engine = await selectEngine("text", isPaid);
       const cost = chargeForGeneration(user, engine);
       await user.save();
 

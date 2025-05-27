@@ -10,11 +10,7 @@ export interface ITransaction extends Document {
 
 const TranSchema = new Schema<ITransaction>({
   userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
-  engineId: {
-    type: Schema.Types.ObjectId,
-    ref: "EngineAccount",
-    required: false,
-  },
+  engineId: { type: Schema.Types.ObjectId, ref: "EngineAccount" },
   type: {
     type: String,
     enum: ["topup", "generation", "cashback"],
