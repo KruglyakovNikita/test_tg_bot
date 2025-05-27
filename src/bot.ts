@@ -5,6 +5,7 @@ import "./db";
 import { getOrCreateUser, getUserByTelegramId } from "./services/userService";
 import { registerUserHandlers } from "./handlers/userHandler";
 import { registerAiMockHandlers } from "./handlers/aiMockHandler";
+import { registerPaymentHandlers } from "./handlers/paymentHandler";
 
 const bot = new Telegraf(process.env.BOT_TOKEN!);
 
@@ -19,6 +20,7 @@ bot.use(async (ctx, next) => {
 // Регистрация основных хендлеров
 registerUserHandlers(bot);
 registerAiMockHandlers(bot);
+registerPaymentHandlers(bot);
 
 // Запуск
 bot

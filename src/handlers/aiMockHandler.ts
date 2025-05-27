@@ -23,19 +23,6 @@ export function registerAiMockHandlers(bot: Telegraf) {
       await handleMockGeneration(ctx2, "text");
     });
   });
-
-  // Пополнение (mock)
-  bot.action("MENU_TOPUP", async (ctx) => {
-    await ctx.answerCbQuery();
-    // Мокаем +100
-    const user = await getUserByTelegramId(ctx.from!.id)!;
-    if (!user) throw new Error("User not found");
-
-    await updateUserBalance(user.telegramId, 100);
-    await ctx.reply(
-      `Баланс пополнен на 100 ⭐. Теперь: ${(user.balance + 100).toFixed(1)} ⭐`
-    );
-  });
 }
 
 // Общий обработчик “генерации”

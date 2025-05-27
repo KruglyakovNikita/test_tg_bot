@@ -1,33 +1,5 @@
 import { User, IUser } from "../models/User";
-
-/**
- * Обновляет баланс пользователя на delta (может быть положительным или отрицательным) и возвращает обновленную модель.
- */
-export async function updateUserBalance(
-  telegramId: number,
-  delta: number
-): Promise<IUser> {
-  const user = await getOrCreateUser(telegramId);
-  user.balance += delta;
-  await user.save();
-  return user;
-}
-
-/**
- * Проверяет и помечает, использована ли первая бесплатная генерация.
- * Возвращает true, если это был первый запрос, иначе false.
- */
-export async function checkAndMarkFirstGen(
-  telegramId: number
-): Promise<boolean> {
-  const user = await getOrCreateUser(telegramId);
-  const isFirst = !user.firstGenDone;
-  if (isFirst) {
-    user.firstGenDone = true;
-    await user.save();
-  }
-  return isFirst;
-}
+import { Transaction, ITransaction } from "../models/Transaction";
 
 export async function getOrCreateUser(telegramId: number): Promise<IUser> {
   let user = await User.findOne({ telegramId });
@@ -44,7 +16,36 @@ export async function getUserByTelegramId(
   return User.findOne({ telegramId });
 }
 
+export async function updateUserBalance(
+  telegramId: number,
+  delta: number
+): Promise<IUser> {
+  const user = await getOrCreateUser(telegramId);
+  user.balance += delta;
+  await user.save();
+  // Create transaction log
+  const tx = new Transaction({
+    userId: user._id,
+    type: delta > 0 ? "topup" : "generation",
+    amount: delta,
+  } as Partial<ITransaction>);
+  await tx.save();
+  return user;
+}
+
 export async function userIsPaid(telegramId: number): Promise<boolean> {
   const user = await getOrCreateUser(telegramId);
   return user.balance > 0;
+}
+
+export async function checkAndMarkFirstGen(
+  telegramId: number
+): Promise<boolean> {
+  const user = await getOrCreateUser(telegramId);
+  const isFirst = !user.firstGenDone;
+  if (isFirst) {
+    user.firstGenDone = true;
+    await user.save();
+  }
+  return isFirst;
 }
